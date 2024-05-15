@@ -1,8 +1,8 @@
 version: '3'
 services:
-#  app:
-#    build:
-#      context: .
+  #  app:
+  #    build:
+  #      context: .
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -10,10 +10,11 @@ services:
       - "11434:11434"
     volumes:
       - ./volumes/ollama:/root/.ollama
-  postgress:
+  postgres:
     image: ankane/pgvector
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    restart: always
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
       - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql

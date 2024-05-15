@@ -10,9 +10,9 @@ spring:
       pgvector:
       index-type: HNSW
       distance-type: COSINE_DISTANCE
-      dimension: 4096
+      dimension: 1999
   jpa:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:postgresql://localhost:5432/movie_db
+    url: jdbc:postgresql://localhost:5433/movie_db
