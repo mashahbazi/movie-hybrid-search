@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: movie-hybrid-search
+  ai:
+    ollama:
+      embedding:
+        options:
+          model: llama2
+    vectorstore:
+      pgvector:
+      index-type: HNSW
+      distance-type: COSINE_DISTANCE
+      dimension: 4096
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/movie_db

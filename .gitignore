@@ -41,3 +41,6 @@ out/
 
 ### Volumes ###
 volumes/**
+
+### Application Local Files ###
+application-local.yaml
