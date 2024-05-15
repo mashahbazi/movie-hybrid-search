@@ -14,4 +14,7 @@ class MovieEntity {
 
     @Column(nullable = false)
     var description: String = ""
+
+    @Column(nullable = false)
+    var embedded: Boolean = false
 }

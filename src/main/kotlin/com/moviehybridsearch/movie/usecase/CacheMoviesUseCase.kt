@@ -4,13 +4,15 @@ import com.moviehybridsearch.movie.gateway.MovieGateway
 import com.moviehybridsearch.movie.gateway.dto.MovieDTO
 import com.moviehybridsearch.movie.repo.MoveRepository
 import com.moviehybridsearch.movie.shared.MovieMapper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class CacheMoviesUseCase(
     private val movieGateway: MovieGateway,
     private val movieMapper: MovieMapper,
     private val moveRepository: MoveRepository,
 ) {
-    fun execute(): Result<Unit> {
+    suspend fun execute(): Result<Unit> {
         try {
             var page = 0
             val firstPageResult =
@@ -35,8 +37,10 @@ class CacheMoviesUseCase(
         }
     }
 
-    private fun saveMovies(movies: List<MovieDTO>) {
+    private suspend fun saveMovies(movies: List<MovieDTO>) {
         val entities = movies.map { movieMapper.dtoToEntity(it) }
-        moveRepository.saveAll(entities)
+        withContext(Dispatchers.IO) {
+            moveRepository.saveAll(entities)
+        }
     }
 }
