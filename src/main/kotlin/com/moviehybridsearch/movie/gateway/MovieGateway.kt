@@ -9,7 +9,10 @@ import org.springframework.web.util.UriComponentsBuilder
 class MovieGateway(
     private val restTemplate: RestTemplate,
 ) {
-    fun getMovies(page: Int): Result<ListMovieDTO> {
+    fun getMovies(
+        year: Int,
+        page: Int,
+    ): Result<ListMovieDTO> {
         try {
             val uri =
                 UriComponentsBuilder.fromHttpUrl("https://api.themoviedb.org")
@@ -17,7 +20,8 @@ class MovieGateway(
                     .queryParam("include_adult", false)
                     .queryParam("include_video", false)
                     .queryParam("language", "en")
-                    .queryParam("primary_release_date.gte", "2024-01-01")
+                    .queryParam("primary_release_date.gte", "$year-01-01")
+                    .queryParam("primary_release_date.lte", "${year + 1}-01-01")
                     .queryParam("sort_by", "popularity.desc")
                     .queryParam("vote_count.gte", 10)
                     .queryParam("page", page)

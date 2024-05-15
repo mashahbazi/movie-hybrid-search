@@ -4,19 +4,20 @@ import com.moviehybridsearch.movie.gateway.MovieGateway
 import com.moviehybridsearch.movie.gateway.dto.MovieDTO
 import com.moviehybridsearch.movie.repo.MoveRepository
 import com.moviehybridsearch.movie.shared.MovieMapper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.moviehybridsearch.shared.extension.logger
+import org.springframework.stereotype.Component
 
+@Component
 class CacheMoviesUseCase(
     private val movieGateway: MovieGateway,
     private val movieMapper: MovieMapper,
     private val moveRepository: MoveRepository,
 ) {
-    suspend fun execute(): Result<Unit> {
+    fun execute(year: Int): Result<Unit> {
         try {
             var page = 0
             val firstPageResult =
-                movieGateway.getMovies(page).fold(
+                movieGateway.getMovies(year, page).fold(
                     onSuccess = { it },
                     onFailure = { return Result.failure(it) },
                 )
@@ -25,7 +26,7 @@ class CacheMoviesUseCase(
             while (page < totalPages) {
                 page++
                 val pageResult =
-                    movieGateway.getMovies(page).fold(
+                    movieGateway.getMovies(year, page).fold(
                         onSuccess = { it },
                         onFailure = { return Result.failure(it) },
                     )
@@ -33,14 +34,13 @@ class CacheMoviesUseCase(
             }
             return Result.success(Unit)
         } catch (e: Exception) {
+            logger.error(e.toString())
             return Result.failure(e)
         }
     }
 
-    private suspend fun saveMovies(movies: List<MovieDTO>) {
+    private fun saveMovies(movies: List<MovieDTO>) {
         val entities = movies.map { movieMapper.dtoToEntity(it) }
-        withContext(Dispatchers.IO) {
-            moveRepository.saveAll(entities)
-        }
+        moveRepository.saveAll(entities)
     }
 }
