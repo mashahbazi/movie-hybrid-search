@@ -35,14 +35,11 @@ class EmbedMoviesUseCase(
                 val documents =
                     unEmbeddedMoviesPage.content.map {
                         GlobalScope.async {
-                            val embeddedMovieVector =
-                                embeddingClient.embed("Title:${it.title}, Description:${it.description}")
+                            val content = "Title:${it.title}, Overview:${it.overview}"
 
-                            Document(
-                                it.id.toString(),
-                                "Title:${it.title}, Description:${it.description}",
-                                null,
-                            ).apply {
+                            val embeddedMovieVector = embeddingClient.embed(content)
+
+                            Document(it.id.toString(), content, null).apply {
                                 embedding = embeddedMovieVector
                             }
                         }

@@ -16,3 +16,13 @@ spring:
       ddl-auto: update
   datasource:
     url: jdbc:postgresql://localhost:5433/movie_db
+    username: // Add here
+    password: // Add here
+  sql:
+    init:
+      mode: always
+      schema-locations:
+        - classpath:init.sql
+
+movie:
+  api-key: // Add here

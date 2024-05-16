@@ -16,20 +16,31 @@ class SyncMovieUseCase(
     private val syncRepository: SyncRepository,
 ) {
     suspend fun execute(year: Int) {
-        withContext(Dispatchers.IO) {
-            syncRepository.findByYear(year)
-        }?.let {
-            logger.info("Syncing movies for year $year already done")
+        val syncEntity =
+            withContext(Dispatchers.IO) {
+                syncRepository.findByYear(year) ?: syncRepository.save(SyncEntity().apply { this.year = year })
+            }
+
+        if (syncEntity.synced) {
+            logger.info("Movies already synced")
             return
+        }
+        logger.info("Syncing movies...")
+
+        if (!syncEntity.cached) {
+            logger.info("Caching movies...")
+            val cacheResult = cacheMoviesUseCase.execute(year)
+            if (cacheResult.isFailure) {
+                logger.error("Caching movies failed")
+                return
+            }
+            logger.info("Caching movies successful")
+            syncEntity.cached = true
+            withContext(Dispatchers.IO) {
+                syncRepository.save(syncEntity)
+            }
         }
 
-        logger.info("Syncing movies...")
-        val cacheResult = cacheMoviesUseCase.execute(year)
-        if (cacheResult.isFailure) {
-            logger.error("Caching movies failed")
-            return
-        }
-        logger.info("Caching movies successful")
         logger.info("Embedding movies...")
         val embedResult = embedMoviesUseCase.execute()
         embedResult.fold(
@@ -41,6 +52,7 @@ class SyncMovieUseCase(
         )
 
         withContext(Dispatchers.IO) {
+            syncEntity.synced = true
             syncRepository.save(SyncEntity().apply { this.year = year })
         }
     }

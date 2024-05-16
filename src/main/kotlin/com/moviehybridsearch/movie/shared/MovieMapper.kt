@@ -10,7 +10,7 @@ class MovieMapper {
         return MovieEntity().apply {
             id = dto.id
             title = dto.title
-            description = dto.description
+            overview = dto.overview
         }
     }
 }

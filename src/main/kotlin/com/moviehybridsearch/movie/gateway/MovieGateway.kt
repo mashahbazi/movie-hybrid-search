@@ -1,6 +1,11 @@
 package com.moviehybridsearch.movie.gateway
 
 import com.moviehybridsearch.movie.gateway.dto.ListMovieDTO
+import com.moviehybridsearch.movie.shared.MovieConfig
+import com.moviehybridsearch.shared.extension.logger
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -8,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder
 @Component
 class MovieGateway(
     private val restTemplate: RestTemplate,
+    private val movieConfig: MovieConfig,
 ) {
     fun getMovies(
         year: Int,
@@ -28,9 +34,17 @@ class MovieGateway(
                     .build()
                     .toUri()
 
-            val response = restTemplate.getForEntity(uri, ListMovieDTO::class.java)
+            val httpEntity =
+                HttpEntity<String>(
+                    HttpHeaders().apply {
+                        set("Authorization", "Bearer ${movieConfig.apiToken}")
+                    },
+                )
+
+            val response = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, ListMovieDTO::class.java)
             return response.body?.let { Result.success(it) } ?: run { Result.failure(Exception("No response body")) }
         } catch (e: Exception) {
+            logger.error(e.toString())
             return Result.failure(e)
         }
     }

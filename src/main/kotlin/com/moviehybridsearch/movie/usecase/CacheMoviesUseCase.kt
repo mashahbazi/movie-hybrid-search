@@ -15,7 +15,7 @@ class CacheMoviesUseCase(
 ) {
     fun execute(year: Int): Result<Unit> {
         try {
-            var page = 0
+            var page = 1
             val firstPageResult =
                 movieGateway.getMovies(year, page).fold(
                     onSuccess = { it },

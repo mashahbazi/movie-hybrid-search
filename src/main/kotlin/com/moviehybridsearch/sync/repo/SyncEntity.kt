@@ -13,4 +13,10 @@ class SyncEntity {
 
     @Column(nullable = false)
     var year: Int = 0
+
+    @Column(nullable = false)
+    var cached: Boolean = false
+
+    @Column(nullable = false)
+    var synced: Boolean = false
 }
