@@ -11,7 +11,7 @@ class SyncEntity {
     @GeneratedValue
     var id: Long = 0
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     var year: Int = 0
 
     @Column(nullable = false)

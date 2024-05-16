@@ -8,9 +8,9 @@ spring:
           model: llama3
     vectorstore:
       pgvector:
-      index-type: HNSW
-      distance-type: COSINE_DISTANCE
-      dimension: 1999
+        index-type: NONE
+        distance-type: COSINE_DISTANCE
+        dimension: 4096
   jpa:
     hibernate:
       ddl-auto: update

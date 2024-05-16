@@ -45,15 +45,14 @@ class SyncMovieUseCase(
         val embedResult = embedMoviesUseCase.execute()
         embedResult.fold(
             onSuccess = {
+                withContext(Dispatchers.IO) {
+                    syncEntity.synced = true
+                    syncRepository.save(SyncEntity().apply { this.year = year })
+                }
                 logger.info("Embedding movies successful")
                 logger.info("Syncing movies successful")
             },
             onFailure = { logger.error("Embedding movies failed") },
         )
-
-        withContext(Dispatchers.IO) {
-            syncEntity.synced = true
-            syncRepository.save(SyncEntity().apply { this.year = year })
-        }
     }
 }
