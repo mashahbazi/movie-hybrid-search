@@ -1,6 +1,6 @@
 package com.moviehybridsearch.movie.usecase
 
-import com.moviehybridsearch.movie.repo.MoveRepository
+import com.moviehybridsearch.movie.repo.MovieRepository
 import com.moviehybridsearch.shared.extension.logger
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -18,18 +18,18 @@ import java.util.UUID
 
 @Component
 class EmbedMoviesUseCase(
-    private val moveRepository: MoveRepository,
+    private val movieRepository: MovieRepository,
     private val embeddingClient: EmbeddingClient,
     private val vectorStore: VectorStore,
 ) {
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun execute(): Result<Unit> {
         return try {
-            var pageable = Pageable.ofSize(2).withPage(0)
+            var pageable = Pageable.ofSize(5).withPage(0)
             do {
                 val unEmbeddedMoviesPage =
                     withContext(Dispatchers.IO) {
-                        moveRepository.findByEmbedded(false, pageable)
+                        movieRepository.findByEmbedded(false, pageable)
                     }
                 if (unEmbeddedMoviesPage.content.isEmpty()) break
 
@@ -53,7 +53,7 @@ class EmbedMoviesUseCase(
                 vectorStore.add(documents)
                 GlobalScope.launch {
                     unEmbeddedMoviesPage.content.map { it.apply { embedded = true } }
-                        .let { moveRepository.saveAll(it) }
+                        .let { movieRepository.saveAll(it) }
                 }
 
                 pageable = pageable.next()

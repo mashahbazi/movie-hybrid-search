@@ -2,7 +2,7 @@ package com.moviehybridsearch.movie.usecase
 
 import com.moviehybridsearch.movie.gateway.MovieGateway
 import com.moviehybridsearch.movie.gateway.dto.MovieDTO
-import com.moviehybridsearch.movie.repo.MoveRepository
+import com.moviehybridsearch.movie.repo.MovieRepository
 import com.moviehybridsearch.movie.shared.MovieMapper
 import com.moviehybridsearch.shared.extension.logger
 import org.springframework.stereotype.Component
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class CacheMoviesUseCase(
     private val movieGateway: MovieGateway,
     private val movieMapper: MovieMapper,
-    private val moveRepository: MoveRepository,
+    private val movieRepository: MovieRepository,
 ) {
     fun execute(year: Int): Result<Unit> {
         try {
@@ -41,6 +41,6 @@ class CacheMoviesUseCase(
 
     private fun saveMovies(movies: List<MovieDTO>) {
         val entities = movies.map { movieMapper.dtoToEntity(it) }
-        moveRepository.saveAll(entities)
+        movieRepository.saveAll(entities)
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface MoveRepository : CrudRepository<MovieEntity, Long> {
+interface MovieRepository : CrudRepository<MovieEntity, Long> {
     fun findByEmbedded(
         embedded: Boolean,
         pageable: Pageable,
