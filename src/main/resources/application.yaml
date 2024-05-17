@@ -3,6 +3,7 @@ spring:
     name: movie-hybrid-search
   ai:
     ollama:
+      base-url: http://ollama:11434
       embedding:
         options:
           model: llama3
@@ -15,7 +16,8 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:postgresql://localhost:5433/movie_db
+    url: jdbc:postgresql://postgres:5432/movie_db
+    driver-class-name: org.postgresql.Driver
     username: // Add here
     password: // Add here
   sql:

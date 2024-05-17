@@ -44,3 +44,4 @@ volumes/**
 
 ### Application Local Files ###
 application-local.yaml
+application-docker.yaml
