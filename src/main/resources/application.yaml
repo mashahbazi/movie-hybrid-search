@@ -14,7 +14,7 @@ spring:
         dimension: 4096
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
   datasource:
     url: jdbc:postgresql://postgres:5432/movie_db
     driver-class-name: org.postgresql.Driver

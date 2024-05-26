@@ -5,7 +5,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 
-@Entity
+@Entity(name = "syncs")
 class SyncEntity {
     @Id
     @GeneratedValue
