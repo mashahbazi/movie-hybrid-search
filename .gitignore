@@ -45,3 +45,6 @@ volumes/**
 ### Application Local Files ###
 application-local.yaml
 application-docker.yaml
+
+### Projection Matrix ###
+src/main/resources/projection_matrix.txt

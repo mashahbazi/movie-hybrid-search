@@ -1,63 +1,52 @@
 package com.moviehybridsearch.movie.usecase
 
+import com.moviehybridsearch.movie.repo.MovieIndexEntity
+import com.moviehybridsearch.movie.repo.MovieIndexRepository
 import com.moviehybridsearch.movie.repo.MovieRepository
 import com.moviehybridsearch.shared.extension.logger
+import com.moviehybridsearch.vector.usecase.PCAUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingClient
-import org.springframework.ai.vectorstore.VectorStore
-import org.springframework.data.domain.Pageable
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
-import java.util.UUID
 
 @Component
+@Lazy
 class EmbedMoviesUseCase(
+    private val pcaUseCase: PCAUseCase,
     private val movieRepository: MovieRepository,
     private val embeddingClient: EmbeddingClient,
-    private val vectorStore: VectorStore,
+    private val movieIndexRepository: MovieIndexRepository,
 ) {
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun execute(): Result<Unit> {
         return try {
-            var pageable = Pageable.ofSize(5).withPage(0)
-            do {
-                val unEmbeddedMoviesPage =
-                    withContext(Dispatchers.IO) {
-                        movieRepository.findByEmbedded(false, pageable)
-                    }
-                if (unEmbeddedMoviesPage.content.isEmpty()) break
-
-                val documents =
-                    unEmbeddedMoviesPage.content.map {
+            val allUnEmbeddedMoviesPage = withContext(Dispatchers.IO) { movieRepository.findUnEmbedded() }
+            allUnEmbeddedMoviesPage.chunked(10).map { unEmbeddedMoviesPage ->
+                val entities =
+                    unEmbeddedMoviesPage.map {
                         GlobalScope.async {
                             val content = "Title:${it.title}, Overview:${it.overview}"
 
-                            val embeddedMovieVector = embeddingClient.embed(content)
+                            val embeddedMovieVector =
+                                embeddingClient.embed(content).let {
+                                    pcaUseCase.execute(it.toDoubleArray())
+                                }
 
-                            Document(
-                                UUID.nameUUIDFromBytes(it.id.toString().toByteArray()).toString(),
-                                content,
-                                mapOf("movieId" to it.id),
-                            ).apply {
-                                embedding = embeddedMovieVector
+                            MovieIndexEntity().apply {
+                                movie = it
+                                embedding = embeddedMovieVector.map { it.toFloat() / 100 }.toFloatArray()
+                                this.content = content
                             }
                         }
                     }.awaitAll()
-
-                vectorStore.add(documents)
-                GlobalScope.launch {
-                    unEmbeddedMoviesPage.content.map { it.apply { embedded = true } }
-                        .let { movieRepository.saveAll(it) }
-                }
-
-                pageable = pageable.next()
-            } while (unEmbeddedMoviesPage.hasNext())
+                movieIndexRepository.saveAll(entities)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             logger.error("Error while embedding movies", e)

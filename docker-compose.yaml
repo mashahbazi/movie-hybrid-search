@@ -1,13 +1,13 @@
 version: '3'
 services:
-  app:
-    build:
-      context: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - ollama
+#  app:
+#    build:
+#      context: .
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - postgres
+#      - ollama
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -19,6 +19,9 @@ services:
     image: ankane/pgvector
     ports:
       - "5433:5432"
+    expose:
+      - 5433
+      - 5432
     restart: always
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data

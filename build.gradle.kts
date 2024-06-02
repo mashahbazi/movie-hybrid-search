@@ -28,9 +28,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation(platform("org.springframework.ai:spring-ai-bom:0.8.1-SNAPSHOT"))
     implementation("org.springframework.ai:spring-ai-ollama-spring-boot-starter")
-    implementation("org.springframework.ai:spring-ai-pgvector-store-spring-boot-starter")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.hibernate.orm:hibernate-vector:7.0.0.Alpha2")
+    implementation("org.apache.commons:commons-math3:3.6.1")
     runtimeOnly("org.postgresql:postgresql:42.7.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
