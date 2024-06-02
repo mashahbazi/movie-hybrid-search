@@ -24,6 +24,7 @@ spring:
       schema-locations:
         - classpath:init.sql
         - classpath:movies.sql
+        - classpath:hybrid-search-function.sql
 
 movie:
   api-key: // Add here

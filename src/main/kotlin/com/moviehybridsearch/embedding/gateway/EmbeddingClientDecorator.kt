@@ -6,13 +6,17 @@ import org.apache.commons.math3.linear.RealMatrix
 import org.springframework.ai.embedding.EmbeddingClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Primary
+import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
-import org.springframework.util.ResourceUtils
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 
 @Component
 @Primary
 class EmbeddingClientDecorator(
     @Qualifier("ollamaEmbeddingClient") private val embeddingClient: EmbeddingClient,
+    private val resourceLoader: ResourceLoader,
 ) : EmbeddingClient by embeddingClient {
     private lateinit var projectionMatrix: RealMatrix
 
@@ -21,12 +25,20 @@ class EmbeddingClientDecorator(
      */
     @PostConstruct
     private fun loadMatrix() {
-        val file = ResourceUtils.getFile("classpath:projection_matrix.txt")
-        val data =
-            file.readLines().map { line ->
-                line.split(" ").map { it.toDouble() }.toDoubleArray()
-            }.toTypedArray()
-        projectionMatrix = MatrixUtils.createRealMatrix(data)
+        val resource = resourceLoader.getResource("classpath:projection_matrix.txt")
+        try {
+            resource.inputStream.use { inputStream ->
+                BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                    val data =
+                        reader.readLines().map { line ->
+                            line.split(" ").map { it.toDouble() }.toDoubleArray()
+                        }.toTypedArray()
+                    projectionMatrix = MatrixUtils.createRealMatrix(data)
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
     /**

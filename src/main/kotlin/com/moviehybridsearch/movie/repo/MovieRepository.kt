@@ -2,6 +2,7 @@ package com.moviehybridsearch.movie.repo
 
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -19,4 +20,20 @@ interface MovieRepository : CrudRepository<MovieEntity, Long> {
             """,
     )
     fun findUnEmbedded(): List<MovieEntity>
+
+    @Query(
+        nativeQuery = true,
+        value = """
+SELECT * FROM hybrid_search(
+    :text,
+    :embedding,
+    :limit
+)
+            """,
+    )
+    fun findNearestMovies(
+        @Param("text") text: String,
+        @Param("embedding") embedding: String,
+        @Param("limit") limit: Int,
+    ): List<MovieEntity>
 }
