@@ -4,7 +4,6 @@ import com.moviehybridsearch.movie.repo.MovieIndexEntity
 import com.moviehybridsearch.movie.repo.MovieIndexRepository
 import com.moviehybridsearch.movie.repo.MovieRepository
 import com.moviehybridsearch.shared.extension.logger
-import com.moviehybridsearch.vector.usecase.PCAUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component
 @Component
 @Lazy
 class EmbedMoviesUseCase(
-    private val pcaUseCase: PCAUseCase,
     private val movieRepository: MovieRepository,
     private val embeddingClient: EmbeddingClient,
     private val movieIndexRepository: MovieIndexRepository,
@@ -32,15 +30,11 @@ class EmbedMoviesUseCase(
                     unEmbeddedMoviesPage.map {
                         GlobalScope.async {
                             val content = "Title:${it.title}, Overview:${it.overview}"
-
-                            val embeddedMovieVector =
-                                embeddingClient.embed(content).let {
-                                    pcaUseCase.execute(it.toDoubleArray())
-                                }
+                            val embeddedMovieVector = embeddingClient.embed(content)
 
                             MovieIndexEntity().apply {
                                 movie = it
-                                embedding = embeddedMovieVector.map { it.toFloat() / 100 }.toFloatArray()
+                                embedding = embeddedMovieVector.map { it.toFloat() }.toFloatArray()
                                 this.content = content
                             }
                         }
