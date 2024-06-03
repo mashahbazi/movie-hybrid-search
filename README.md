@@ -28,3 +28,10 @@ curl --location 'http://localhost:8080/movie/search?term=goodzilla%20x%20kingkon
   Database for storing movie vector and full text search
 - [Spring Boot](https://spring.io/projects/spring-boot)
   Framework for building Java-based enterprise applications
+
+## How it works ##
+There is 2 steps in the search process:
+1. Embedding data:
+   ![](./docs/embedding.jpeg)
+2. Query data:
+   ![](./docs/query.jpeg)
